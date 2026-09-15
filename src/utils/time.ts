@@ -41,10 +41,6 @@ export function formatMinuteOfDay(minuteOfDay: number): string {
   return `${hours12}:${String(minutes).padStart(2, '0')} ${suffix}`;
 }
 
-export function formatCurrency(amount: number): string {
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-}
-
 export function percent(part: number, whole: number): number {
   if (whole <= 0) return 0;
   return Math.round(part / whole * 100);

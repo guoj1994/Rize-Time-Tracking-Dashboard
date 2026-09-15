@@ -2,7 +2,7 @@ import type { DayBlock } from '../types';
 
 export const today = { weekday: 'Tuesday', label: 'Sep 15, 2026', short: 'Tue, Sep 15' };
 
-/** Everything Rize captured today, already labeled by the classifier. */
+/** Everything captured locally today, already labeled by the on-device classifier. */
 export const dayBlocks: DayBlock[] = [
 {
   id: 'b1',

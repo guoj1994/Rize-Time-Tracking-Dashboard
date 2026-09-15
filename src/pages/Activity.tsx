@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, GlobeIcon, MonitorIcon, SparklesIcon } from 'lucide-react';
+import { ActivityIcon, ChevronLeftIcon, ChevronRightIcon, MonitorIcon, SparklesIcon } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Panel } from '../components/ui/Panel';
 import { BarRow } from '../components/ui/BarRow';
@@ -39,7 +39,7 @@ export function Activity() {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        icon={<GlobeIcon className="h-4 w-4 text-muted" />}
+        icon={<ActivityIcon className="h-4 w-4 text-muted" />}
         title="Activity"
         actions={
         <>
@@ -74,12 +74,12 @@ export function Activity() {
             action={
             <span className="flex items-center gap-1.5 text-[12px] text-muted">
                 <SparklesIcon className="h-[12px] w-[12px] text-accent" />
-                AI labeled, editable
+                Classified locally, editable
               </span>
             }>
             
             <ol className="relative border-l border-line pl-4">
-              {state !== 'locked' &&
+              {state !== 'idle' &&
               <li className="relative pb-5">
                   <span className="absolute -left-[22px] top-[5px] h-[9px] w-[9px] rounded-full bg-accent ring-4 ring-accent-soft" />
                   <div className="flex items-baseline justify-between gap-3">
@@ -118,7 +118,7 @@ export function Activity() {
             <Panel title="Live capture">
               {liveLog.length === 0 ?
               <p className="py-2 text-[13px] text-faint">
-                  Nothing captured yet — start a session and Rize logs every app and site switch here, already
+                  Nothing captured yet — start a focus session and every app and site switch shows up here, already
                   classified.
                 </p> :
 

@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
-  dailyTargetSeconds,
   focusRotation,
   seedAppUsage,
   seedBreakSeconds,
@@ -8,56 +7,34 @@ import {
   seedMeetingSeconds,
   seedSessions,
   seedTrackedSeconds,
-  seedWebsiteUsage,
-  sounds } from
+  seedWebsiteUsage } from
 '../data/tracking';
 import { classify } from '../utils/classify';
-import type { ActivityCategory, AppUsage, LiveEntry, SessionConfig, SessionKind, SessionState } from '../types';
-
-export const defaultConfig: SessionConfig = {
-  kind: 'focus',
-  plannedSeconds: 45 * 60,
-  goal: '',
-  taskId: null,
-  projectId: null,
-  clientId: null,
-  sound: 'silence',
-  autoBreak: true,
-  blockDistractions: false,
-  muteNotifications: true
-};
+import type { ActivityCategory, AppUsage, LiveEntry, SessionConfig, SessionState } from '../types';
 
 interface TrackingValue {
   state: SessionState;
-  sessionKind: SessionKind | null;
   config: SessionConfig | null;
   trackingEnabled: boolean;
   sessionSeconds: number;
   remainingSeconds: number | null;
+  justCompleted: boolean;
   trackedSeconds: number;
   focusSeconds: number;
   meetingSeconds: number;
   breakSeconds: number;
   sessions: number;
-  targetSeconds: number;
   currentApp: string;
   currentWebsite: string | null;
   apps: AppUsage[];
   websites: AppUsage[];
   liveLog: LiveEntry[];
-  launcherKind: SessionKind | null;
-  lastCompleted: SessionKind | null;
-  soundId: string;
-  musicPlaying: boolean;
-  openLauncher: (kind: SessionKind) => void;
-  closeLauncher: () => void;
-  beginSession: (config: SessionConfig) => void;
+  toggleTracking: () => void;
+  startFocus: (config: SessionConfig) => void;
   pauseSession: () => void;
   resumeSession: () => void;
   endSession: () => void;
-  toggleTracking: () => void;
-  toggleMusic: () => void;
-  cycleSound: () => void;
+  dismissCompletion: () => void;
   categoryFor: (id: string, fallback: ActivityCategory) => ActivityCategory;
   isOverridden: (id: string) => boolean;
   setCategory: (id: string, category: ActivityCategory) => void;
@@ -76,53 +53,43 @@ function addSeconds(list: AppUsage[], name: string, kind: AppUsage['kind'], cate
 }
 
 export function TrackingProvider({ children }: {children: React.ReactNode;}) {
-  const [state, setState] = useState<SessionState>('locked');
-  const [sessionKind, setSessionKind] = useState<SessionKind | null>(null);
+  const [state, setState] = useState<SessionState>('idle');
   const [config, setConfig] = useState<SessionConfig | null>(null);
   const [trackingEnabled, setTrackingEnabled] = useState(true);
   const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [justCompleted, setJustCompleted] = useState(false);
   const [trackedSeconds, setTrackedSeconds] = useState(seedTrackedSeconds);
   const [focusSeconds, setFocusSeconds] = useState(seedFocusSeconds);
-  const [meetingSeconds, setMeetingSeconds] = useState(seedMeetingSeconds);
-  const [breakSeconds, setBreakSeconds] = useState(seedBreakSeconds);
+  const [meetingSeconds] = useState(seedMeetingSeconds);
+  const [breakSeconds] = useState(seedBreakSeconds);
   const [sessions, setSessions] = useState(seedSessions);
   const [apps, setApps] = useState<AppUsage[]>(seedAppUsage);
   const [websites, setWebsites] = useState<AppUsage[]>(seedWebsiteUsage);
   const [rotationTick, setRotationTick] = useState(0);
   const [liveLog, setLiveLog] = useState<LiveEntry[]>([]);
-  const [launcherKind, setLauncherKind] = useState<SessionKind | null>(null);
-  const [lastCompleted, setLastCompleted] = useState<SessionKind | null>(null);
-  const [soundId, setSoundId] = useState('silence');
-  const [musicPlaying, setMusicPlaying] = useState(false);
   const [overrides, setOverrides] = useState<Record<string, ActivityCategory>>({});
 
   const rotationIndex = Math.floor(rotationTick / ROTATION_SECONDS) % focusRotation.length;
   const rotating = focusRotation[rotationIndex];
-  const isMeeting = sessionKind === 'meeting';
-  const activeApp = isMeeting ? 'Google Meet' : rotating.app;
-  const activeWebsite = isMeeting ? null : rotating.website ?? null;
+  const activeApp = rotating.app;
+  const activeWebsite = rotating.website ?? null;
 
   useEffect(() => {
-    if (state !== 'running' && state !== 'break') return;
+    if (state !== 'running') return;
     const id = window.setInterval(() => {
       setSessionSeconds((value) => value + 1);
-      if (state === 'break') {
-        setBreakSeconds((value) => value + 1);
-        return;
-      }
       setTrackedSeconds((value) => value + 1);
-      if (sessionKind === 'meeting') setMeetingSeconds((value) => value + 1);else
       setFocusSeconds((value) => value + 1);
       setRotationTick((value) => value + 1);
     }, 1000);
     return () => window.clearInterval(id);
-  }, [state, sessionKind]);
+  }, [state]);
 
   useEffect(() => {
     if (state !== 'running') return;
-    setApps((list) => addSeconds(list, activeApp, 'app', isMeeting ? 'meeting' : rotating.category));
+    setApps((list) => addSeconds(list, activeApp, 'app', rotating.category));
     if (activeWebsite) setWebsites((list) => addSeconds(list, activeWebsite, 'website', rotating.category));
-  }, [state, rotationTick, activeApp, activeWebsite, isMeeting, rotating.category]);
+  }, [state, rotationTick, activeApp, activeWebsite, rotating.category]);
 
   useEffect(() => {
     if (state !== 'running') return;
@@ -140,71 +107,48 @@ export function TrackingProvider({ children }: {children: React.ReactNode;}) {
         app: activeApp,
         website: activeWebsite,
         seconds: 1,
-        aiCategory: isMeeting ? 'meeting' : verdict.category,
-        confidence: isMeeting ? 0.99 : verdict.confidence,
-        reason: isMeeting ? 'Started from the Meeting session type' : verdict.reason
+        aiCategory: verdict.category,
+        confidence: verdict.confidence,
+        reason: verdict.reason
       },
       ...log].
       slice(0, 12);
     });
-  }, [state, rotationTick, activeApp, activeWebsite, isMeeting]);
+  }, [state, rotationTick, activeApp, activeWebsite]);
 
-  const finishSession = useCallback(
-    (completed: SessionKind | null, promptBreak: boolean) => {
-      setState('locked');
-      setSessionKind(null);
-      setSessionSeconds(0);
-      setMusicPlaying(false);
-      setLastCompleted(completed);
-      if (promptBreak) setLauncherKind('break');
-    },
-    []
-  );
+  const finishSession = useCallback((completed: boolean) => {
+    setState('idle');
+    setSessionSeconds(0);
+    setJustCompleted(completed);
+  }, []);
 
   useEffect(() => {
     if (!config || config.plannedSeconds <= 0) return;
-    if (state !== 'running' && state !== 'break') return;
+    if (state !== 'running') return;
     if (sessionSeconds < config.plannedSeconds) return;
-    finishSession(config.kind, config.kind !== 'break' && config.autoBreak);
+    finishSession(true);
   }, [sessionSeconds, state, config, finishSession]);
 
-  const openLauncher = useCallback((kind: SessionKind) => setLauncherKind(kind), []);
-  const closeLauncher = useCallback(() => setLauncherKind(null), []);
-
-  const beginSession = useCallback((next: SessionConfig) => {
+  const startFocus = useCallback((next: SessionConfig) => {
     setConfig(next);
-    setSessionKind(next.kind);
     setSessionSeconds(0);
-    setSoundId(next.sound);
-    setMusicPlaying(next.sound !== 'silence');
     setTrackingEnabled(true);
-    setLauncherKind(null);
-    setLastCompleted(null);
-    setState(next.kind === 'break' ? 'break' : 'running');
-    if (next.kind !== 'break') setSessions((count) => count + 1);
+    setJustCompleted(false);
+    setState('running');
+    setSessions((count) => count + 1);
   }, []);
 
   const pauseSession = useCallback(() => setState('paused'), []);
-  const resumeSession = useCallback(
-    () => setState(sessionKind === 'break' ? 'break' : 'running'),
-    [sessionKind]
-  );
-  const endSession = useCallback(() => finishSession(null, false), [finishSession]);
+  const resumeSession = useCallback(() => setState('running'), []);
+  const endSession = useCallback(() => finishSession(false), [finishSession]);
+  const dismissCompletion = useCallback(() => setJustCompleted(false), []);
 
   const toggleTracking = useCallback(() => {
     setTrackingEnabled((value) => {
-      if (value) finishSession(null, false);
+      if (value) finishSession(false);
       return !value;
     });
   }, [finishSession]);
-
-  const toggleMusic = useCallback(() => setMusicPlaying((value) => !value), []);
-  const cycleSound = useCallback(() => {
-    setSoundId((current) => {
-      const index = sounds.findIndex((sound) => sound.id === current);
-      return sounds[(index + 1) % sounds.length].id;
-    });
-  }, []);
 
   const categoryFor = useCallback(
     (id: string, fallback: ActivityCategory) => overrides[id] ?? fallback,
@@ -222,46 +166,38 @@ export function TrackingProvider({ children }: {children: React.ReactNode;}) {
   const value = useMemo<TrackingValue>(
     () => ({
       state,
-      sessionKind,
       config,
       trackingEnabled,
       sessionSeconds,
       remainingSeconds,
+      justCompleted,
       trackedSeconds,
       focusSeconds,
       meetingSeconds,
       breakSeconds,
       sessions,
-      targetSeconds: dailyTargetSeconds,
-      currentApp: state === 'running' ? activeApp : state === 'break' ? 'Away from keyboard' : 'Idle',
+      currentApp: state === 'running' ? activeApp : 'Idle',
       currentWebsite: state === 'running' ? activeWebsite : null,
       apps,
       websites,
       liveLog,
-      launcherKind,
-      lastCompleted,
-      soundId,
-      musicPlaying,
-      openLauncher,
-      closeLauncher,
-      beginSession,
+      toggleTracking,
+      startFocus,
       pauseSession,
       resumeSession,
       endSession,
-      toggleTracking,
-      toggleMusic,
-      cycleSound,
+      dismissCompletion,
       categoryFor,
       isOverridden,
       setCategory
     }),
     [
     state,
-    sessionKind,
     config,
     trackingEnabled,
     sessionSeconds,
     remainingSeconds,
+    justCompleted,
     trackedSeconds,
     focusSeconds,
     meetingSeconds,
@@ -272,19 +208,12 @@ export function TrackingProvider({ children }: {children: React.ReactNode;}) {
     apps,
     websites,
     liveLog,
-    launcherKind,
-    lastCompleted,
-    soundId,
-    musicPlaying,
-    openLauncher,
-    closeLauncher,
-    beginSession,
+    toggleTracking,
+    startFocus,
     pauseSession,
     resumeSession,
     endSession,
-    toggleTracking,
-    toggleMusic,
-    cycleSound,
+    dismissCompletion,
     categoryFor,
     isOverridden,
     setCategory]
