@@ -1,0 +1,78 @@
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+:root {
+  --canvas: 245 245 250;
+  --surface: 255 255 255;
+  --rail: 250 250 253;
+  --line: 232 232 240;
+  --ink: 26 26 32;
+  --muted: 105 105 122;
+  --faint: 155 155 173;
+  --accent: 90 78 214;
+  --accent-ink: 72 60 176;
+  --accent-soft: 237 234 250;
+  --positive: 22 148 88;
+  --warn: 202 138 4;
+  --danger: 220 38 38;
+}
+.dark {
+  --canvas: 21 21 26;
+  --surface: 30 30 37;
+  --rail: 25 25 31;
+  --line: 46 46 56;
+  --ink: 242 242 246;
+  --muted: 155 155 172;
+  --faint: 112 112 130;
+  --accent: 144 130 246;
+  --accent-ink: 112 96 226;
+  --accent-soft: 44 38 70;
+  --positive: 52 179 112;
+  --warn: 224 168 46;
+  --danger: 239 87 87;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rize-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--line)) transparent;
+}
+.rize-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.rize-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rize-scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--line));
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
