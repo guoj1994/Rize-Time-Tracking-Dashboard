@@ -44,3 +44,13 @@ export const focusDurations = [
 { value: 60, label: '60 min' },
 { value: 90, label: '90 min' },
 { value: 0, label: 'No limit' }];
+
+
+export const breakDurations = [
+{ value: 5, label: '5 min' },
+{ value: 10, label: '10 min' },
+{ value: 15, label: '15 min' }];
+
+
+export const DEFAULT_FOCUS_MINUTES = 45;
+export const DEFAULT_BREAK_MINUTES = 10;

@@ -88,17 +88,17 @@ export const categoryMeta: Record<
   },
   meeting: {
     label: 'Meeting',
-    dot: 'bg-[#4f9d74]',
-    chip: 'bg-[#e9f5ee] text-[#1f7a4d] border-[#bfe0cd]',
-    block: 'bg-[#eaf5ef] border-[#b7d9c6]',
-    text: 'text-[#1f7a4d]'
+    dot: 'bg-meeting',
+    chip: 'bg-meeting-soft text-meeting-ink border-meeting/25',
+    block: 'bg-meeting-soft border-meeting/35',
+    text: 'text-meeting-ink'
   },
   break: {
     label: 'Break',
-    dot: 'bg-[#dfa74f]',
-    chip: 'bg-[#fdf4e3] text-[#8a5a17] border-[#eddcb4]',
-    block: 'bg-[#fdf3e7] border-[#ebd2ac]',
-    text: 'text-[#8a5a17]'
+    dot: 'bg-break',
+    chip: 'bg-break-soft text-break-ink border-break/25',
+    block: 'bg-break-soft border-break/35',
+    text: 'text-break-ink'
   },
   other: {
     label: 'Other',

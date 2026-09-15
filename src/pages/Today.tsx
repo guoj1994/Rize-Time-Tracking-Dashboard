@@ -18,7 +18,7 @@ function offsetFor(minute: number) {
 }
 
 export function Today() {
-  const { state, sessionSeconds, categoryFor, isOverridden, setCategory } = useTracking();
+  const { phase, kind, elapsedSeconds, categoryFor, isOverridden, setCategory } = useTracking();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [nowMinute, setNowMinute] = useState(() => {
     const now = new Date();
@@ -35,8 +35,9 @@ export function Today() {
 
   const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, index) => START_HOUR + index);
   const clampedNow = Math.min(Math.max(nowMinute, START_HOUR * 60), END_HOUR * 60);
-  const liveMinutes = Math.max(1, Math.round(sessionSeconds / 60));
-  const isLive = state === 'running';
+  const liveMinutes = Math.max(1, Math.round(elapsedSeconds / 60));
+  const isLive = phase === 'running' && kind !== null;
+  const liveCategory: ActivityCategory = kind ?? 'focus';
 
   const resolved = useMemo(
     () => dayBlocks.map((block) => ({ ...block, category: categoryFor(block.id, block.aiCategory) })),
@@ -48,9 +49,9 @@ export function Today() {
     resolved.forEach((block) => {
       map[block.category] += block.minutes;
     });
-    if (isLive) map.focus += liveMinutes;
+    if (isLive) map[liveCategory] += liveMinutes;
     return map;
-  }, [resolved, isLive, liveMinutes]);
+  }, [resolved, isLive, liveCategory, liveMinutes]);
 
   const totalMinutes = categoryOrder.reduce((sum, key) => sum + totals[key], 0) || 1;
   const needsReview = resolved.filter((block) => block.confidence < LOW_CONFIDENCE && !isOverridden(block.id));
@@ -133,16 +134,16 @@ export function Today() {
 
               {isLive &&
               <div
-                className={`absolute left-2 right-4 overflow-hidden rounded-md border-2 px-2.5 py-1 ${categoryMeta.focus.block}`}
+                className={`absolute left-2 right-4 overflow-hidden rounded-md border-2 px-2.5 py-1 ${categoryMeta[liveCategory].block}`}
                 style={{
                   top: offsetFor(clampedNow - liveMinutes),
                   height: Math.max(20, liveMinutes / 60 * HOUR_HEIGHT)
                 }}>
                 
-                  <span className={`flex items-center gap-2 text-[12px] font-medium ${categoryMeta.focus.text}`}>
-                    <span className={`h-[7px] w-[7px] rounded-full ${categoryMeta.focus.dot}`} />
-                    Focus · in progress
-                    <span className="tabular opacity-70">{formatClock(sessionSeconds)}</span>
+                  <span className={`flex items-center gap-2 text-[12px] font-medium ${categoryMeta[liveCategory].text}`}>
+                    <span className={`h-[7px] w-[7px] rounded-full ${categoryMeta[liveCategory].dot}`} />
+                    {categoryMeta[liveCategory].label} · in progress
+                    <span className="tabular opacity-70">{formatClock(elapsedSeconds)}</span>
                   </span>
                 </div>
               }

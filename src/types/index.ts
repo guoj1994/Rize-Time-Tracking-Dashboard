@@ -1,8 +1,17 @@
-export type SessionState = 'idle' | 'running' | 'paused';
+export type SessionKind = 'focus' | 'meeting' | 'break';
+
+/**
+ * idle — Focus setup screen, nothing running.
+ * running / paused — a focus, meeting, or break session is active.
+ * breakOffer — a focus session just finished; offer a break or skip it.
+ * breakDone — a break just ended (naturally or manually); offer the next focus session.
+ */
+export type SessionPhase = 'idle' | 'running' | 'paused' | 'breakOffer' | 'breakDone';
 
 export type ActivityCategory = 'focus' | 'meeting' | 'break' | 'other';
 
 export interface SessionConfig {
+  kind: SessionKind;
   taskName: string;
   projectId: string | null;
   plannedSeconds: number;

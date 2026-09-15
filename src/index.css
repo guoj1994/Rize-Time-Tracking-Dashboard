@@ -16,9 +16,18 @@
   --ink: 26 26 32;
   --muted: 105 105 122;
   --faint: 155 155 173;
-  --accent: 90 78 214;
-  --accent-ink: 72 60 176;
-  --accent-soft: 237 234 250;
+  /* Focus — teal / blue-green */
+  --accent: 13 148 136;
+  --accent-ink: 15 118 110;
+  --accent-soft: 204 251 241;
+  /* Break — purple */
+  --break: 124 58 237;
+  --break-ink: 109 40 217;
+  --break-soft: 237 233 254;
+  /* Meeting — green */
+  --meeting: 79 157 116;
+  --meeting-ink: 31 122 77;
+  --meeting-soft: 233 245 238;
   --positive: 22 148 88;
   --warn: 202 138 4;
   --danger: 220 38 38;
@@ -31,9 +40,18 @@
   --ink: 242 242 246;
   --muted: 155 155 172;
   --faint: 112 112 130;
-  --accent: 144 130 246;
-  --accent-ink: 112 96 226;
-  --accent-soft: 44 38 70;
+  /* Focus — teal / blue-green */
+  --accent: 45 212 191;
+  --accent-ink: 20 184 166;
+  --accent-soft: 15 46 43;
+  /* Break — purple */
+  --break: 167 139 250;
+  --break-ink: 139 92 246;
+  --break-soft: 46 34 74;
+  /* Meeting — green */
+  --meeting: 95 199 140;
+  --meeting-ink: 95 199 140;
+  --meeting-soft: 23 48 31;
   --positive: 52 179 112;
   --warn: 224 168 46;
   --danger: 239 87 87;

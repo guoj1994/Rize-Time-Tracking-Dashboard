@@ -11,8 +11,9 @@ import { formatClock, formatDuration, formatMinuteOfDay, percent } from '../util
 import type { ActivityCategory } from '../types';
 
 export function Activity() {
-  const { apps, websites, liveLog, state, sessionSeconds, currentApp, categoryFor, isOverridden, setCategory } =
+  const { apps, websites, liveLog, phase, kind, elapsedSeconds, currentApp, categoryFor, isOverridden, setCategory } =
   useTracking();
+  const isFocusLive = phase === 'running' && kind === 'focus';
 
   const appTotal = apps.reduce((sum, item) => sum + item.seconds, 0);
   const siteTotal = websites.reduce((sum, item) => sum + item.seconds, 0);
@@ -60,9 +61,7 @@ export function Activity() {
                 <ChevronRightIcon className="h-[14px] w-[14px]" />
               </button>
             </div>
-            <Badge tone={state === 'running' ? 'positive' : 'neutral'}>
-              {state === 'running' ? 'Live' : 'Paused'}
-            </Badge>
+            <Badge tone={isFocusLive ? 'positive' : 'neutral'}>{isFocusLive ? 'Live' : 'Paused'}</Badge>
           </>
         } />
       
@@ -79,12 +78,12 @@ export function Activity() {
             }>
             
             <ol className="relative border-l border-line pl-4">
-              {state !== 'idle' &&
+              {isFocusLive &&
               <li className="relative pb-5">
                   <span className="absolute -left-[22px] top-[5px] h-[9px] w-[9px] rounded-full bg-accent ring-4 ring-accent-soft" />
                   <div className="flex items-baseline justify-between gap-3">
                     <p className="text-[13px] font-medium text-accent-ink">In progress</p>
-                    <span className="tabular text-[12px] text-accent-ink">{formatClock(sessionSeconds)}</span>
+                    <span className="tabular text-[12px] text-accent-ink">{formatClock(elapsedSeconds)}</span>
                   </div>
                   <p className="text-[12px] text-faint">{currentApp}</p>
                 </li>

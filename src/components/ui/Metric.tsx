@@ -4,7 +4,7 @@ export interface MetricItem {
   label: string;
   value: React.ReactNode;
   hint?: React.ReactNode;
-  tone?: 'default' | 'positive' | 'warn' | 'danger' | 'accent';
+  tone?: 'default' | 'positive' | 'warn' | 'danger' | 'accent' | 'break' | 'meeting';
 }
 
 const toneClass: Record<NonNullable<MetricItem['tone']>, string> = {
@@ -12,7 +12,9 @@ const toneClass: Record<NonNullable<MetricItem['tone']>, string> = {
   positive: 'text-positive',
   warn: 'text-warn',
   danger: 'text-danger',
-  accent: 'text-accent'
+  accent: 'text-accent-ink',
+  break: 'text-break-ink',
+  meeting: 'text-meeting-ink'
 };
 
 export function MetricRow({ items, className = '' }: {items: MetricItem[];className?: string;}) {

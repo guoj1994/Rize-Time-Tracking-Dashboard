@@ -35,9 +35,9 @@ export const dailySummary: SummaryPeriod = {
   { id: 'figma', label: '拍照学生助手 prototype', color: '#5a4ed6', minutes: 25 }],
 
   topApps: [
-  { id: 'cursor', label: 'Cursor', color: '#5a4ed6', minutes: 72 },
+  { id: 'cursor', label: 'Cursor', color: '#0d9488', minutes: 72 },
   { id: 'meet', label: 'Google Meet', color: '#4f9d74', minutes: 26 },
-  { id: 'iina', label: 'IINA', color: '#dfa74f', minutes: 26 },
+  { id: 'iina', label: 'IINA', color: '#7c3aed', minutes: 26 },
   { id: 'figma', label: 'Figma', color: '#e59a9a', minutes: 15 },
   { id: 'slack', label: 'Slack', color: '#9b9bad', minutes: 17 }],
 
@@ -65,10 +65,10 @@ export const weeklySummary: SummaryPeriod = {
   { id: 'tai', label: '划词翻译弹层交互', color: '#6ec1c8', minutes: 74 }],
 
   topApps: [
-  { id: 'cursor', label: 'Cursor', color: '#5a4ed6', minutes: 720 },
+  { id: 'cursor', label: 'Cursor', color: '#0d9488', minutes: 720 },
   { id: 'figma', label: 'Figma', color: '#e59a9a', minutes: 150 },
   { id: 'meet', label: 'Google Meet', color: '#4f9d74', minutes: 260 },
-  { id: 'iina', label: 'IINA', color: '#dfa74f', minutes: 130 },
+  { id: 'iina', label: 'IINA', color: '#7c3aed', minutes: 130 },
   { id: 'slack', label: 'Slack', color: '#9b9bad', minutes: 90 }],
 
   insights: [

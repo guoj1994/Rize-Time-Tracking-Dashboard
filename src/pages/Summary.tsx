@@ -43,8 +43,8 @@ export function Summary() {
               items={[
               { label: 'Tracked', value: formatMinutes(data.totals.trackedMinutes) },
               { label: 'Focus', value: formatMinutes(data.totals.focusMinutes), tone: 'accent' },
-              { label: 'Meetings', value: formatMinutes(data.totals.meetingMinutes) },
-              { label: 'Breaks', value: formatMinutes(data.totals.breakMinutes) }]
+              { label: 'Meetings', value: formatMinutes(data.totals.meetingMinutes), tone: 'meeting' },
+              { label: 'Breaks', value: formatMinutes(data.totals.breakMinutes), tone: 'break' }]
               } />
             
           </Panel>
